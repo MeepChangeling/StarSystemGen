@@ -3295,12 +3295,21 @@ function savePage() {
     const fileName = document.getElementById('starSystemHeader').textContent.replace(/\s+/g, '') + '.html';
 
     // Gather inline styles from within the document
-    let css = `
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-        body {
-            font-family: 'Roboto', sans-serif;
-        }
-    `;
+    // Retrieve all CSS styles from accessible stylesheets
+            let css = '';
+            for (const sheet of document.styleSheets) {
+                try {
+                    if (sheet.href && sheet.href.includes('fonts.googleapis.com')) {
+                        // Skip Google Fonts CSS since it will be embedded separately
+                        continue;
+                    }
+                    for (const rule of sheet.cssRules) {
+                        css += rule.cssText;
+                    }
+                } catch (e) {
+                    console.warn('Could not access stylesheet:', sheet.href, e);
+                }
+            }
 
     // Additional styles if needed can be appended here
 
@@ -3362,6 +3371,8 @@ function savePage() {
             saveAs(content, `${fileName.replace('.html', '')}.zip`);
         });
     });
+
+
 }
 </script>
 </body>
